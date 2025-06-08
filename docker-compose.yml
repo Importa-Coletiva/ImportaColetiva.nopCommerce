@@ -1,18 +1,14 @@
 services:
-    nopcommerce_web:
-        build: .
-        container_name: nopcommerce
-        ports:
-            - "80:80"
-        depends_on:
-            - nopcommerce_database
-    nopcommerce_database:
-        image: "mcr.microsoft.com/mssql/server:2019-latest"
-        container_name: nopcommerce_mssql_server
-        environment:
-            SA_PASSWORD: "nopCommerce_db_password"
-            ACCEPT_EULA: "Y"
-            MSSQL_PID: "Express"
-
+  nopcommerce-db:
+    image: "postgres:latest"  
+    container_name: nop-pg
+    environment:
+      POSTGRES_USER: nopuser
+      POSTGRES_PASSWORD: noppassword
+      POSTGRES_DB: nopcommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - nop-pg-data:/var/lib/postgresql/data
 volumes:
-  nopcommerce_data:            
+  nop-pg-data:
