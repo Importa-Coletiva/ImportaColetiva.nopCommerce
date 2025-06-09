@@ -56,21 +56,23 @@ jobs:
       with:
         key: ${{ secrets.EC2_SSH_KEY }}
         known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
-        
+        config: |
+          Host ${{ secrets.EC2_HOST }}
+          HostName ${{ secrets.EC2_HOST }}
+          User ${{ secrets.EC2_USERNAME }}
+          IdentityFile ~/.ssh/id_rsa
+          StrictHostKeyChecking no
+    
+    - name: Test SSH connection
+      run: ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "echo 'SSH successful!'"
+       
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
-            "mkdir -p ~/deployments && rm -rf ~/deployments/*"
-        
-        scp -o StrictHostKeyChecking=no \
-            nopcommerce.zip \
-            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/nopcommerce.zip
-        
-        ssh -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
-            "unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped && \
-             sudo rm -rf ${{ env.DEPLOY_DIR }}/* && \
-             sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/ && \
-             sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }} && \
-             sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
+       scp nopcommerce.zip ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/
+       ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+        mkdir -p ~/deployments/unzipped
+        unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped
+        sudo rm -rf ${{ env.DEPLOY_DIR }}/*
+        sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/
+        sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }}
+        sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
