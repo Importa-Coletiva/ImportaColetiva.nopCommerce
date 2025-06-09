@@ -7,7 +7,7 @@ on:
     branches: [ develop ]
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '9.0.x'  # Updated to .NET 9
   DEPLOY_DIR: '/var/www/nopcommerce'
   SERVICE_NAME: 'nopcommerce'
 
@@ -18,8 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4  # Updated to v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
@@ -34,7 +34,7 @@ jobs:
         args: zip -qq -r nopcommerce.zip ./publish
     
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # Updated to v4
       with:
         name: nopcommerce-app
         path: ./nopcommerce.zip
@@ -45,7 +45,7 @@ jobs:
     
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4  # Updated to v4
       with:
         name: nopcommerce-app
         
@@ -70,4 +70,5 @@ jobs:
             "unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped && \
              sudo rm -rf ${{ env.DEPLOY_DIR }}/* && \
              sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/ && \
+             sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }} && \
              sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
