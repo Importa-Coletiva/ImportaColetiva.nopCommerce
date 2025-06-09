@@ -68,11 +68,22 @@ jobs:
        
     - name: Deploy to EC2
       run: |
-       scp nopcommerce.zip ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/
-       ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
-        mkdir -p ~/deployments/unzipped
-        unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped
-        sudo rm -rf ${{ env.DEPLOY_DIR }}/*
-        sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/
-        sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }}
-        sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
+       # Create remote directory first (with proper permissions)
+       ssh -o StrictHostKeyChecking=no \
+         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+         "mkdir -p ~/deployments && chmod 700 ~/deployments"
+         
+       # Upload with full destination path
+       scp -o StrictHostKeyChecking=no \
+         nopcommerce.zip \
+         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/nopcommerce.zip
+         
+       # Unzip and deploy
+       ssh -o StrictHostKeyChecking=no \
+         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+         "unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped && \
+         sudo mkdir -p ${{ env.DEPLOY_DIR }} && \
+         sudo rm -rf ${{ env.DEPLOY_DIR }}/* && \
+         sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/ && \
+         sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }} && \
+         sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
