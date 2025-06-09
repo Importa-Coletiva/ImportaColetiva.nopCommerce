@@ -68,10 +68,17 @@ jobs:
        
     - name: Deploy to EC2
       run: |
-       # Create remote directory first (with proper permissions)
+       # Install unzip if not present
        ssh -o StrictHostKeyChecking=no \
-         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
-         "mkdir -p ~/deployments && chmod 700 ~/deployments"
+       ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+       "sudo yum install -y unzip || sudo apt-get install -y unzip"
+        
+       # Create remote directory first (with proper permissions) and delete if any existing contents.
+       ssh -o StrictHostKeyChecking=no \
+        ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+        "mkdir -p ~/deployments && \
+        chmod 700 ~/deployments && \
+        { [ -d ~/deployments ] && rm -rf ~/deployments/* || true; }"
          
        # Upload with full destination path
        scp -o StrictHostKeyChecking=no \
