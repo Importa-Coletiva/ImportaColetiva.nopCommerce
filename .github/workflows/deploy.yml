@@ -25,8 +25,11 @@ jobs:
     
     - name: Build with dotnet
       run: |
+        dotnet clean src/NopCommerce.sln
         dotnet restore src/NopCommerce.sln
-        dotnet publish src/NopCommerce.sln -c Release -o ./publish
+        dotnet publish src/NopCommerce.sln -c Release -o ./publish \
+          /p:ErrorOnDuplicatePublishOutputFiles=false \
+          /p:DefaultItemExcludes="**/bin/**;**/obj/**;**/.vs/**;**/.git/**"
     
     - name: Zip artifacts
       uses: montudor/action-zip@v1
