@@ -29,7 +29,12 @@ jobs:
         dotnet restore src/NopCommerce.sln
         dotnet publish src/NopCommerce.sln -c Release -o ./publish \
           /p:ErrorOnDuplicatePublishOutputFiles=false
-    
+          
+    - name: Copy Installation Files
+      run: |
+       mkdir -p publish/App_Data/Installation
+       cp src/Installation/App_Data/Installation/* publish/App_Data/Installation/
+       
     - name: Zip artifacts
       uses: montudor/action-zip@v1
       with:
