@@ -1,0 +1,73 @@
+name: Deploy nopCommerce to EC2
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  DEPLOY_DIR: '/var/www/nopcommerce'
+  SERVICE_NAME: 'nopcommerce'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Build with dotnet
+      run: |
+        dotnet restore src/NopCommerce.sln
+        dotnet publish src/NopCommerce.sln -c Release -o ./publish
+    
+    - name: Zip artifacts
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r nopcommerce.zip ./publish
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: nopcommerce-app
+        path: ./nopcommerce.zip
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: nopcommerce-app
+        
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.EC2_SSH_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+        
+    - name: Deploy to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p ~/deployments && rm -rf ~/deployments/*"
+        
+        scp -o StrictHostKeyChecking=no \
+            nopcommerce.zip \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/nopcommerce.zip
+        
+        ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+            "unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped && \
+             sudo rm -rf ${{ env.DEPLOY_DIR }}/* && \
+             sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/ && \
+             sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
