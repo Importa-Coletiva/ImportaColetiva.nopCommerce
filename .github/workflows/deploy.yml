@@ -33,7 +33,7 @@ jobs:
     - name: Copy Installation Files
       run: |
        mkdir -p publish/App_Data/Installation
-       cp src/Installation/App_Data/Installation/* publish/App_Data/Installation/
+       cp src/Presentation/Nop.Web/App_Data/Installation/* publish/App_Data/Installation/
        
     - name: Zip artifacts
       uses: montudor/action-zip@v1
