@@ -29,7 +29,7 @@ jobs:
         dotnet restore src/NopCommerce.sln /p:DefaultItemExcludes="**/bin/**; **/obj/**; **/.vs/**; **/.git/**"
         dotnet publish src/NopCommerce.sln -c Release -o ./publish \
           /p:ErrorOnDuplicatePublishOutputFiles=false \
-          /p:DefaultItemExcludes="**/bin/**;**/obj/**;**/.vs/**;**/.git/**"
+          /p:DefaultItemExcludes="**/bin/**; **/obj/**; **/.vs/**; **/.git/**"
     
     - name: Zip artifacts
       uses: montudor/action-zip@v1
