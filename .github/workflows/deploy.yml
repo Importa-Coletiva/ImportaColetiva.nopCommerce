@@ -1,0 +1,101 @@
+name: Deploy nopCommerce to EC2
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+env:
+  DOTNET_VERSION: '9.0.x'  # Updated to .NET 9
+  DEPLOY_DIR: '/var/www/nopcommerce'
+  SERVICE_NAME: 'nopcommerce'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4  # Updated to v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Build with dotnet
+      run: |
+        dotnet clean src/NopCommerce.sln
+        dotnet restore src/NopCommerce.sln
+        dotnet publish src/NopCommerce.sln -c Release -o ./publish \
+          /p:ErrorOnDuplicatePublishOutputFiles=false
+          
+    - name: Copy Installation Files
+      run: |
+       mkdir -p publish/App_Data/Installation
+       cp src/Presentation/Nop.Web/App_Data/Installation/* publish/App_Data/Installation/
+       
+    - name: Zip artifacts
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r nopcommerce.zip ./publish
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4  # Updated to v4
+      with:
+        name: nopcommerce-app
+        path: ./nopcommerce.zip
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4  # Updated to v4
+      with:
+        name: nopcommerce-app
+        
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.EC2_SSH_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+        config: |
+          Host ${{ secrets.EC2_HOST }}
+          HostName ${{ secrets.EC2_HOST }}
+          User ${{ secrets.EC2_USERNAME }}
+          IdentityFile ~/.ssh/id_rsa
+          StrictHostKeyChecking no
+    
+    - name: Test SSH connection
+      run: ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "echo 'SSH successful!'"
+       
+    - name: Deploy to EC2
+      run: |
+       # Install unzip if not present
+       ssh -o StrictHostKeyChecking=no \
+       ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+       "sudo yum install -y unzip || sudo apt-get install -y unzip"
+        
+       # Create remote directory first (with proper permissions) and delete if any existing contents.
+       ssh -o StrictHostKeyChecking=no \
+        ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+        "mkdir -p ~/deployments && \
+        chmod 700 ~/deployments && \
+        { [ -d ~/deployments ] && rm -rf ~/deployments/* || true; }"
+         
+       # Upload with full destination path
+       scp -o StrictHostKeyChecking=no \
+         nopcommerce.zip \
+         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/deployments/nopcommerce.zip
+         
+       # Unzip and deploy
+       ssh -o StrictHostKeyChecking=no \
+         ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+         "unzip -q ~/deployments/nopcommerce.zip -d ~/deployments/unzipped && \
+         sudo mkdir -p ${{ env.DEPLOY_DIR }} && \
+         sudo rm -rf ${{ env.DEPLOY_DIR }}/* && \
+         sudo cp -r ~/deployments/unzipped/* ${{ env.DEPLOY_DIR }}/ && \
+         sudo chown -R www-data:www-data ${{ env.DEPLOY_DIR }} && \
+         sudo systemctl restart ${{ env.SERVICE_NAME }}.service"
