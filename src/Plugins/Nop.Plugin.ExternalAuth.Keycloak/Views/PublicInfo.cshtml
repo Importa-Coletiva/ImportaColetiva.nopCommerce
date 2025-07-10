@@ -1,0 +1,31 @@
+﻿@* ~/Plugins/ExternalAuth.Keycloak/Views/PublicInfo.cshtml *@
+@{
+    Layout = "";
+}
+<div class="external-auth-keycloak">
+    <div class="title">
+        <strong>@T("Plugins.ExternalAuth.Keycloak.Login.Title")</strong>
+    </div>
+    <div class="buttons">
+        <a href="@Url.Action("Login", "KeycloakAuthentication", new { returnUrl = Context.Request.Query["returnUrl"] })"
+           class="keycloak-login-button">
+            <img src="/Plugins/ExternalAuth.Keycloak/Content/keycloak-logo.svg" alt="Keycloak" />
+            @T("Plugins.ExternalAuth.Keycloak.Login.Button")
+        </a>
+    </div>
+</div>
+
+<style>
+    .keycloak-login-button {
+        background: #2C3E50;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .keycloak-login-button img {
+        height: 20px;
+        margin-right: 10px;
+    }
+</style>

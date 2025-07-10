@@ -1,0 +1,5 @@
+﻿{
+  "Plugins.ExternalAuth.Keycloak.Login.Title": "Login with Keycloak",
+  "Plugins.ExternalAuth.Keycloak.Login.Button": "Sign in with Keycloak",
+  "Plugins.ExternalAuth.Keycloak.Configure": "Keycloak Settings"
+}

@@ -1,0 +1,13 @@
+﻿{
+  "Group": "External authentication",
+  "FriendlyName": "Keycloak Authentication",
+  "SystemName": "ExternalAuth.Keycloak",
+  "Version": "1.0.0",
+  "SupportedVersions": [
+    "4.80.8"
+  ],
+  "Author": "Lijo Sebastian",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.ExternalAuth.Keycloak.dll",
+  "Description": "Keycloak OIDC integration"
+}
