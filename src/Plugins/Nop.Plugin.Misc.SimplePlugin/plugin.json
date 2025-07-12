@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Simple Plugin",
+  "SystemName": "Misc.SimplePlugin",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": -1,
+  "FileName": "Nop.Plugin.Misc.SimplePlugin.dll",
+  "Description": ""
+}

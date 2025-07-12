@@ -1,0 +1,8 @@
+﻿@model Nop.Plugin.Misc.SimplePlugin.SimplePluginSettings
+
+@if (Model.EnableFeature)
+{
+    <div class="text-center alert alert-info my-3">
+        @Model.WelcomeMessage
+    </div>
+}
