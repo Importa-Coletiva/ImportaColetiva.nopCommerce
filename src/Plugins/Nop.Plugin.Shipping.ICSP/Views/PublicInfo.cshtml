@@ -1,0 +1,37 @@
+﻿
+<div id="icsp-loader" class="title">
+    @T("Plugins.Shipping.ICSP.PleaseWait")
+</div>
+
+<script>
+    $(document).ready(function () {
+        const methodList = $('.method-list');
+        const nextButton = $('button[name="nextstep"]');
+        const shippingOptions = $('input[name="shippingoption"]');
+
+        // Hide method list and disable button initially
+        methodList.hide();
+        nextButton.prop('disabled', true);
+
+
+        // Timeout logic
+        setTimeout(function () {
+            $('#icsp-loader').hide();
+            methodList.show();
+
+            // Enable the button
+            nextButton.prop('disabled', false);
+
+            // Uncheck all radio buttons
+            shippingOptions.prop('checked', false);
+        }, 10000);
+
+
+        $('form').on('submit', function (e) {
+            if (!$('input[name="shippingoption"]:checked').length) {
+                e.preventDefault();
+                alert("Please select a shipping option before continuing.");
+            }
+        });
+    });
+</script>

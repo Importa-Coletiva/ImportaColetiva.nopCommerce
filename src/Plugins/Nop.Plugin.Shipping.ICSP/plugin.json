@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Shipping rate computation",
+  "FriendlyName": "ImportaColectiva Shipping Provider",
+  "SystemName": "Shipping.ICSP",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Your Company",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Shipping.ICSP.dll",
+  "Description": "Custom shipping provider for ImportaColectiva"
+}
