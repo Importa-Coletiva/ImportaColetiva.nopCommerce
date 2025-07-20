@@ -1,0 +1,37 @@
+﻿@model Nop.Plugin.Shipping.ICSP.Models.ICSPShippingModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<h2>@T("Plugins.Shipping.ICSP.Configuration")</h2>
+<form method="post">
+    <div class="form-group">
+        <label asp-for="ApiEndpoint">@T("Plugins.Shipping.ICSP.Fields.ApiEndpoint")</label>
+        <input asp-for="ApiEndpoint" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiKey">@T("Plugins.Shipping.ICSP.Fields.ApiKey")</label>
+        <input asp-for="ApiKey" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiTimeout">@T("Plugins.Shipping.ICSP.Fields.ApiTimeout")</label>
+        <input asp-for="ApiTimeout" class="form-control" type="number" />
+    </div>
+    <div class="form-group">
+        <label asp-for="UseSandbox">@T("Plugins.Shipping.ICSP.Fields.UseSandbox")</label>
+        <input asp-for="UseSandbox" class="form-control" type="checkbox" />
+    </div>
+    <div class="form-group">
+        <label asp-for="EnableEmptyShippingOption">@T("Plugins.Shipping.ICSP.Fields.EnableEmptyShippingOption")</label>
+        <input asp-for="EnableEmptyShippingOption" class="form-control" type="checkbox" />
+    </div>
+    <div class="form-group">
+        <label asp-for="AdditionalHandlingCharge">@T("Plugins.Shipping.ICSP.Fields.AdditionalHandlingCharge")</label>
+        <input asp-for="AdditionalHandlingCharge" class="form-control" type="number" />
+    </div>
+    <button type="submit" class="btn btn-primary">@T("Plugins.Shipping.ICSP.Save")</button>
+</form>
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+}
