@@ -27,20 +27,14 @@ jobs:
         dotnet restore src/NopCommerce.sln
         dotnet publish src/NopCommerce.sln -c Release -o ./publish \
           /p:ErrorOnDuplicatePublishOutputFiles=false
-          
-    - name: Copy Installation Files
-      run: |
-       mkdir -p publish/App_Data/Installation
-       cp src/Presentation/Nop.Web/App_Data/Installation/* publish/App_Data/Installation/
- 
+           
     - name: Copy Plugins to Publish Directory
       run: |
         # Create plugins directory
         mkdir -p publish/Plugins
         
         # Define plugin mappings (source → destination)
-        declare -A plugins=(
-          ["src/Plugins/95942_1030_Omnisend.zip"]="Plugins/95942_1030_Omnisend.zip"
+        declare -A plugins=(          
           # Add more plugins here as needed:
           # ["src/Plugins/another_plugin.zip"]="Plugins/another_plugin.zip"
         )
