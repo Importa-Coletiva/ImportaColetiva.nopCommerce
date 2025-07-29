@@ -2,7 +2,7 @@ name: Deploy nopCommerce to EC2
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ testing ]
 
 env:
   DOTNET_VERSION: '9.0.x'  # Updated to .NET 9
